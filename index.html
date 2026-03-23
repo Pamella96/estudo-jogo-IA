@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Poirot - O Assassinato</title>
+</head>
+<body>
+
+    <header>
+        <h1>O Assassinato em Thornfield Manor</h1>
+    </header>
+    
+    <main>
+        <!-- Painel esquerdo: onde o texto do jogo aparece -->
+        <section id="narrativa">
+            <div id="texto-cena"></div>
+        </section>
+
+        <!-- Painel direito: controles do jogo -->
+         <aside id="sidebar">
+            <div id="suspeitos">
+                 <!-- Botões dos suspeitos vêm aqui -->
+            </div>
+            <ul id="pistas"></ul>
+            <button id="btn-acusar">Acusar o culpado</button>
+
+         </aside>
+
+    </main>
+
+    <!-- Área de digitação do jogador -->
+     <div id="area-input">
+        <textarea id="input-jogador" placeholder="Faça uma pergunta..."></textarea>
+        <button id="btn-enviar">Enviar</button>
+     </div>
+
+
+     <script>
+        // ─── ESTADO CENTRAL DO JOGO ───────────────────────────────
+        const JOGO = {
+            fase: 'intro', // 'intro' | 'investigacao' | 'acusacao' | 'encerrado'
+            suspeitoAtual: null, // qual suspeito está sendo interrogado agora
+            interrogados: new Set(), // quais já foram interrogados (Set evita duplicatas)
+            pistas: [], // array de strings com as pistas coletadas
+            historicos: {}, // { id_suspeito: [mensagens...] } — memória por suspeito
+};
+        // ─── DADOS DOS SUSPEITOS ──────────────────────────────────
+// A estrutura: informações visíveis ao jogador + segredos só para a IA
+
+const SUSPEITOS = {
+    lord_ashworth: {
+        nome: 'Lord Ashworth',
+        papel: 'irmão da vítima',
+        descrição: 'Homem de meia-idade, mãos trêmulas. Herdará a propriedade.',
+        segredos: 'Tinha dívidas de jogo. Alibi fraco — diz que estava no quarto.',
+        culpado: false,
+        
+    },
+    lady_victoria: {
+        nome: 'Lady victoria',
+        papel: 'esposa da vítima',
+        descrição: 'Elegante e fria. Usava luvas dentro de casa.',
+        segredos: 'Tinha um caso com o Dr. Pemberton. Sabia que o marido mudaria o testamento.',
+        culpado: false,
+    },
+    dr_pemberton: {
+        nome: 'Dr. Pemberton',
+        papel: 'médico da família',
+        descrição: 'Culto, voz suave. Conhece a casa há anos.',
+        // Segredo completo — só a IA sabe:
+        segredos: 'CULPADO. Envenenou Sir Edmund com arsênico no conhaque. Sir Edmund descobrira o caso com Lady Victoria e ameaçava expô-lo.',
+        culpado: true,
+    },
+    miss_crane: {
+    nome: 'Miss Crane',
+    papel: 'Secretária particular',
+    descricao: 'Jovem nervosa, dedos manchados de tinta.',
+    segredos: 'Descobriu que Sir Edmund forjava documentos. Estava no jardim na hora do crime.',
+    culpado: false,
+  },
+  mordomo_graves: {
+    nome: 'Graves, o Mordomo',
+    papel: 'Mordomo-chefe',
+    descricao: 'Impassível. Serve à família há 30 anos.',
+    segredos: 'Serviu o conhaque sem saber que estava envenenado. Protege Lady Victoria por lealdade.',
+    culpado: false,
+  },
+};
+
+// A verdade oculta do caso:
+const VERDADE = {
+    assassino: 'dr_pemberton',
+    metodo: 'arsênico dissolvido no conhaque',
+    motivo: 'Sir Edmund descobrira o caso com Lady Victoria',
+};
+
+// ─── REFERÊNCIAS AO DOM ──────────────────────────────────
+const $texto = document.getElementById('texto-cena');
+const $input = document.getElementById('input-jogador');
+const $enviar = document.getElementById('btn-enviar');
+const $acusar = document.getElementById('btn-acusar');
+const $pistas = document.getElementById('pistas');
+const $suspeitos = document.getElementById('suspeitos');
+
+function criarBotoesSuspeitos() {
+    object.entries(SUSPEITOS).forEach(([id, s]) => {
+        const btn = document.createElement('button');
+       btn.textContent = s.nome;
+       btn.dataset.id = id;                  // guarda o ID no atributo do botão
+       btn.className = 'btn-suspeito';
+
+       btn.addEventListener('click', () => {
+           if (JOGO.fase !== 'investigacao') return;
+           selecionarSuspeito(id);
+       });
+
+       $suspeitos.appendChild(btn);
+    });}
+
+
+     </script>
+    
+</body>
+</html>
