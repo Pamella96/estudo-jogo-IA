@@ -102,6 +102,9 @@ const $acusar = document.getElementById('btn-acusar');
 const $pistas = document.getElementById('pistas');
 const $suspeitos = document.getElementById('suspeitos');
 
+// ─── CRIAR BOTÕES DOS SUSPEITOS ─────────────────────────
+// Para cada suspeito nos dados, cria um botão automaticamente
+
 function criarBotoesSuspeitos() {
     object.entries(SUSPEITOS).forEach(([id, s]) => {
         const btn = document.createElement('button');
@@ -117,8 +120,90 @@ function criarBotoesSuspeitos() {
        $suspeitos.appendChild(btn);
     });}
 
+    // ─── SELECIONAR UM SUSPEITO ──────────────────────────────
+function selecionarSuspeito(id){
+    JOGO.suspeitoAtual = id;
+    const s = SUSPEITOS[id];
 
-     </script>
+      // Inicializa o histórico desse suspeito se não existir
+    if (!JOGO.historicos[id]){
+        JOGO.historicos[id] = [];
+    }
+
+      // Marca o botão como ativo visualmente
+    document.querySelectorAll('.btn-suspeito').forEach(b =>{ 
+        b.classList.toggle('ativo', b.dataset.id === id);
+    });
+
+    // Escreve a introdução do personagem na tela
+    adicionarNarrador('Poirot se aproxima de ${s.nome} (${s.papel}). ${s.descricao}');
+
+}
+
+// ─── FUNÇÕES DE RENDERIZAÇÃO DE TEXTO ───────────────────
+// Cada função cria um parágrafo com estilo diferente
+
+function adicionarTexto(html){
+    const p = document.createElement('p');
+    p.innerHTML = html;
+    $texto.appendChild(p);
+    $texto.parentElement.scrollTop = $texto.parentElement.scrollHeight; // rola para baixo
+}
+
+function adicionarNarrador(texto){
+    adicionarTexto('<em class="narrador">${escaparHtml(texto)}</em>');
+}
+
+function adicionarPoirot(texto){
+    adicionarTexto('<strong class="falante">Poirot:</strong> <span class="fala">"&{escaparHtml(texto)}"</span>');
+}
+
+function adicionarSuspeito(nome, texto){
+    adicionarTexto('<strong class="falante">${escaparHtml(nome)}:</strong> "${escaparHtml(texto)}"');
+}
+
+function adicionarJogador(texto){
+    adicionarTexto('<span class="jogador">Você: ${escaparHtml(texto)}</span>');
+}
+
+// Escapar HTML evita que texto do usuário seja interpretado como código
+function escaparHtml(str){
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+// ─── ADICIONAR PISTA ─────────────────────────────────────
+function adicionarPista(suspeito, texto){
+    const pista = '${suspeito}: ${texto}';
+    if (JOGO.pistas.includes(pista)) return; // evita pistas duplicadas
+
+    JOGO.pistas.push(pista);
+
+    const li = document.createElement('li');
+    li.textContent = pista;
+    $pistas.appendChild(li);
+}
+
+// chamar na inicialização do jogo para criar os botões dos suspeitos
+criarBotoesSuspeitos();
+
+// ─── CHAMADA À API ───────────────────────────────────────
+async function chamarClaude(mensagens, systemPrompt) {
+    // 'async/await' permite esperar uma resposta da internet
+  // sem travar o restante do código
+
+  const resposta = await fetch('https://api.anthropic.com/v1/messages',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json'},
+    
+
+  })
+}
+
+
+</script>
     
 </body>
 </html>
